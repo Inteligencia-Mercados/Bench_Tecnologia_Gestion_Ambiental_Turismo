@@ -426,7 +426,7 @@ tbody tr.uao-row:hover { background:#fef9c3; }
     <div id="precios-regional-insight"></div>
 
     <div class="chart-card" style="margin-top:20px;">
-      <h4>Ranking de Precios — Programas Virtuales Privados</h4>
+      <h4>Ranking de Precios — Programas Regionales (Caldas, Risaralda, Valle del Cauca, Quindío, Cauca)</h4>
       <div id="ch_09" style="height:520px;"></div>
     </div>
   </section>
@@ -585,8 +585,6 @@ const UAO_PCT = pctRank(pricePool, REF_PRICE);
 const pricePoolRegional = NATIONAL_DATA
   .filter(d =>
     REGION_DEPTS.includes(d.dpto) &&
-    (d.modal === 'VIRTUAL' || d.modal === 'HIBRIDA') &&
-    d.sector === 'PRIVADO' &&
     d.precio != null &&
     d.precio > 0 &&
     d.precio < 10000000 &&
@@ -598,6 +596,9 @@ const pricePoolRegional = NATIONAL_DATA
 const PR_MIN = pricePoolRegional.length ? pricePoolRegional[0] : 0;
 const PR_MAX = pricePoolRegional.length ? pricePoolRegional[pricePoolRegional.length-1] : 0;
 const PR_MED = percentile(pricePoolRegional, 50);
+const PR40 = percentile(pricePoolRegional, 40);
+const PR60 = percentile(pricePoolRegional, 60);
+const PR75 = percentile(pricePoolRegional, 75);
 const PR_AVG = pricePoolRegional.length ? pricePoolRegional.reduce((a,b)=>a+b,0) / pricePoolRegional.length : 0;
 const UAO_PCT_REGIONAL = pctRank(pricePoolRegional, REF_PRICE);
 
@@ -897,9 +898,10 @@ function calcTrend(d) {
     {y:2020, v:d.dem2020}, {y:2021, v:d.dem2021}, {y:2022, v:d.dem2022}, {y:2023, v:d.dem2023}, {y:2024, v:d.dem2024}
   ].filter(p => p.v != null);
   if (years.length < 2) return {label:'Sin datos', cls:'risk-medio', arrow:'–'};
-  const first = years[0].v, last = years[years.length-1].v;
-  if (last > first) return {label:'Alza', cls:'risk-bajo', arrow:'▲'};
-  if (last < first) return {label:'Baja', cls:'risk-alto', arrow:'▼'};
+  // Compara los dos años más recientes con dato disponible (tendencia reciente, no el punto de partida histórico)
+  const prev = years[years.length-2].v, last = years[years.length-1].v;
+  if (last > prev) return {label:'Alza', cls:'risk-bajo', arrow:'▲'};
+  if (last < prev) return {label:'Baja', cls:'risk-alto', arrow:'▼'};
   return {label:'Estable', cls:'risk-medio', arrow:'≈'};
 }
 let demandSortKey = null, demandSortDir = 1;
@@ -988,18 +990,28 @@ function renderPrecios() {
       <h4>Posición estratégica del precio UAO</h4>
       <p>El precio de UAO (${fmtPrice(REF_PRICE)}) se ubica en el percentil ${UAO_PCT} del pool de programas virtuales privados (mediana ${fmtPrice(P50)}), es decir, ${posTxt}. Esto sugiere ${UAO_PCT<=60 ? 'espacio para sostener o ajustar levemente el precio sin perder competitividad' : 'necesidad de reforzar la propuesta de valor para justificar el precio frente al mercado'}.</p></div></div>`;
 
-  // ch_09 — ranking de precios
-  const rankData = pricePool.map((p,idx) => {
-    const rec = NATIONAL_DATA.find(d => d.precio === p && (d.modal==='VIRTUAL'||d.modal==='HIBRIDA') && d.sector==='PRIVADO' && !d.uao);
-    return {precio:p, univ: rec? rec.univ : '—'};
-  });
-  // Insert UAO into ranking for visualization
+  // ch_09 — ranking de precios regionales
+  const regionRankRows = NATIONAL_DATA
+    .filter(d =>
+      REGION_DEPTS.includes(d.dpto) &&
+      d.precio != null &&
+      d.precio > 0 &&
+      d.precio < 10000000 &&
+      !d.uao
+    )
+    .sort((a,b) => a.precio - b.precio);
+  const rankData = regionRankRows.map(d => ({
+    precio: d.precio,
+    univ: `${d.univ} — ${d.prog}`,
+    modal: d.modal,
+    sector: d.sector
+  }));
   const combined = [...rankData, {precio:REF_PRICE, univ:UAO_REF.univ+' (Ref.)', uao:true}].sort((a,b)=>a.precio-b.precio);
   const colors9 = combined.map(d => {
     if (d.uao) return '#B56C5D';
-    if (d.precio < P40) return '#8FAEC7';
-    if (d.precio < P60) return '#5B7C99';
-    if (d.precio < P75) return '#C58B95';
+    if (d.precio < PR40) return '#8FAEC7';
+    if (d.precio < PR60) return '#5B7C99';
+    if (d.precio < PR75) return '#C58B95';
     return '#7A1622';
   });
   Plotly.newPlot('ch_09', [{
@@ -1010,10 +1022,10 @@ function renderPrecios() {
     text: combined.map(d=>fmtPrice(d.precio)), textposition:'outside', textfont:{size:9}
   }], {...cfg, margin:{t:10,b:30,l:220,r:60}, yaxis:{automargin:true, tickfont:{size:9}},
        shapes:[
-        {type:'line', x0:P50, x1:P50, y0:0, y1:1, yref:'paper', line:{color:'#111', width:1, dash:'dash'}}
+        {type:'line', x0:PR_MED, x1:PR_MED, y0:0, y1:1, yref:'paper', line:{color:'#111', width:1, dash:'dash'}}
        ],
        annotations:[
-        {x:P50, y:1.02, yref:'paper', showarrow:false, text:'Mediana', font:{size:9}}
+        {x:PR_MED, y:1.02, yref:'paper', showarrow:false, text:'Mediana regional', font:{size:9}}
        ]}, plotOpts);
 
   // ---- Estadísticas regionales ----
