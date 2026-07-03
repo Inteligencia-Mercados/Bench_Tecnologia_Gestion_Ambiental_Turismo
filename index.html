@@ -414,8 +414,8 @@ tbody tr.uao-row:hover { background:#fef9c3; }
 
   <!-- ================= SECCIÓN 6 · BENCHMARK DE PRECIOS ================= -->
   <section id="precios" class="section">
-    <div class="section-title">Benchmark de Precios — Programas Virtuales</div>
-    <div class="section-sub">Pool estadístico: programas Virtuales/Híbridos, sector Privado, precio válido, sin outliers extremos (&lt; $10M/semestre).</div>
+    <div class="section-title">Benchmark de Precios — Programas Virtuales e Híbridos</div>
+    <div class="section-sub">Pool estadístico: programas Virtuales/Híbridos, sectores Privado y Oficial, precio válido, sin outliers extremos (&lt; $10M/semestre).</div>
 
     <h3 style="font-size:16px;color:var(--primary);text-transform:uppercase;margin-bottom:12px;">Estadísticas — Nivel Nacional</h3>
     <div class="price-rec-header" id="price-rec-header"></div>
@@ -548,7 +548,6 @@ function badgeSector(s) { return `<span class="badge ${s==='PRIVADO'?'b-priv':'b
 const pricePool = NATIONAL_DATA
   .filter(d =>
     (d.modal === 'VIRTUAL' || d.modal === 'HIBRIDA') &&
-    d.sector === 'PRIVADO' &&
     d.precio != null &&
     d.precio > 0 &&
     d.precio < 10000000 &&
@@ -634,7 +633,7 @@ function renderHero() {
     {val: TOTAL_PROGRAMS, lbl:'Programas similares en Colombia', cls:'', trend:'Todas las modalidades'},
     {val: DIGITAL_PROGRAMS.length, lbl:'Programas virtuales + híbridos', cls:'blue', trend:'Segmento digital'},
     {val: REGION_PROGRAMS.length, lbl:`Programas en ${REGION_NOMBRE}`, cls:'green', trend:'Región de referencia'},
-    {val: '$' + (P50/1000000).toFixed(2) + 'M', lbl:'Mediana precio virtual privado', cls:'orange', trend:'Pool sin UAO', id:'kpi-median-price'},
+    {val: '$' + (P50/1000000).toFixed(2) + 'M', lbl:'Mediana precio virtual/híbrido', cls:'orange', trend:'Pool sin UAO', id:'kpi-median-price'},
     {val: REGION_DIGITAL.length, lbl:'Virtuales en la región (oportunidad)', cls:'purple', trend:'Ventana de posicionamiento'}
   ];
   document.getElementById('hero-kpis').innerHTML = kpis.map(k => `
@@ -650,7 +649,7 @@ function renderHero() {
 
   const insights = [
     {c:'blue', ico:'🗺️', h:'Saturación nacional vs. regional', p:`El mercado nacional agrupa ${TOTAL_PROGRAMS} programas afines, pero solo ${REGION_PROGRAMS.length} (${Math.round(REGION_PROGRAMS.length/TOTAL_PROGRAMS*100)}%) operan en la región ${REGION_NOMBRE}, evidenciando baja concentración competitiva local frente al centro del país.`},
-    {c:'orange', ico:'💰', h:'Posición de precio UAO', p:`El precio de UAO ($${(REF_PRICE/1000000).toFixed(2)}M) se ubica en el percentil ${UAO_PCT} de la oferta de programas virtuales privados, frente a una mediana de $${(P50/1000000).toFixed(2)}M.`},
+    //{c:'orange', ico:'💰', h:'Posición de precio UAO', p:`El precio de UAO ($${(REF_PRICE/1000000).toFixed(2)}M) se ubica en el percentil ${UAO_PCT} de la oferta de programas virtuales privados, frente a una mediana de $${(P50/1000000).toFixed(2)}M.`},
     {c:'green', ico:'🎯', h:'Ventaja modal en la región', p:`Solo ${REGION_DIGITAL.length} programas virtuales/híbridos operan en ${REGION_NOMBRE}, y ${regionSinDigital.length} de los ${REGION_DEPTS.length} departamentos de la región no tienen oferta digital afín registrada.`},
     {c:'blue', ico:'📈', h:'Tendencia de demanda nacional', p:`Entre 2023 y 2024, ${trendUp} programas con datos comparables mostraron alza en matrícula y ${trendDown} mostraron baja, señal de un mercado con demanda activa pero desigual entre instituciones.`},
     {c:'orange', ico:'🌱', h:'Diferenciación curricular', p:`Ningún competidor identificado combina explícitamente gestión ambiental y turística en un solo programa: la mayoría ofrece una u otra orientación por separado, abriendo un espacio de diferenciación curricular para UAO.`}
@@ -768,7 +767,7 @@ function renderDigitalKPIs() {
     {val:DIGITAL_PROGRAMS.length, lbl:'Total programas digitales', cls:''},
     {val:VIRTUAL_ONLY.length, lbl:'Solo Virtuales', cls:'blue'},
     {val:HIBRIDA_ONLY.length, lbl:'Solo Híbridos', cls:'purple'},
-    {val:'$'+(P50/1000000).toFixed(2)+'M', lbl:'Mediana precio virtual privado', cls:'orange', id:'kpi-dig-median'}
+    {val:'$'+(P50/1000000).toFixed(2)+'M', lbl:'Mediana precio virtual/híbrido', cls:'orange', id:'kpi-dig-median'}
   ];
   document.getElementById('digital-kpis').innerHTML = kpis.map(k=>`
     <div class="kpi-card2 ${k.cls}"><div class="val" ${k.id?`id="${k.id}"`:''}>${k.val}</div><div class="lbl">${k.lbl}</div></div>`).join('');
@@ -820,7 +819,7 @@ function renderDigitalInsights() {
       <p>El segmento digital reúne ${DIGITAL_PROGRAMS.length} programas (${VIRTUAL_ONLY.length} virtuales, ${HIBRIDA_ONLY.length} híbridos), predominantemente de carácter privado, lo que confirma que la virtualidad es hoy el canal de crecimiento más activo en esta familia de programas.</p></div></div>
     <div class="insight orange"><div class="ico">🎯</div><div class="content">
       <h4>Oportunidad para UAO</h4>
-      <p>Con un precio de $${(REF_PRICE/1000000).toFixed(2)}M y ${UAO_REF.cred} créditos en ${UAO_REF.sems} semestres, UAO puede posicionarse de forma competitiva dentro del pool de virtuales privados, cuya mediana es $${(P50/1000000).toFixed(2)}M.</p></div></div>`;
+      <p>Con un precio de $${(REF_PRICE/1000000).toFixed(2)}M y ${UAO_REF.cred} créditos en ${UAO_REF.sems} semestres, UAO puede posicionarse de forma competitiva dentro del pool virtual/híbrido de todos los sectores, cuya mediana es $${(P50/1000000).toFixed(2)}M.</p></div></div>`;
 }
 
 /* ============================================================
@@ -973,12 +972,15 @@ function renderPrecios() {
 
   const stats = [
     {val:fmtPrice(P_MIN), lbl:'Precio mínimo', cls:'green'},
-    {val:fmtPrice(P_MAX), lbl:'Precio máximo', cls:'red'},
-    {val:fmtPrice(P50), lbl:'Mediana (P50)', cls:'blue'},
-    {val:fmtPrice(P_AVG), lbl:'Promedio del pool', cls:'orange'}
+    {val:fmtPrice(P25), lbl:'P25 (Límite económico)', cls:'blue'},
+    {val:fmtPrice(P40), lbl:'P40', cls:'purple'},
+    {val:fmtPrice(P50), lbl:'P50 (Mediana)', cls:'blue'},
+    {val:fmtPrice(P60), lbl:'P60', cls:'orange'},
+    {val:fmtPrice(P75), lbl:'P75', cls:'red'},
+    {val:fmtPrice(P_MAX), lbl:'Precio máximo', cls:'red'}
   ];
   document.getElementById('precios-stats').innerHTML = stats.map(s=>`
-    <div class="kpi-card2 ${s.cls}"><div class="val" style="font-size:26px;">${s.val}</div><div class="lbl">${s.lbl}</div></div>`).join('');
+    <div class="kpi-card2 ${s.cls}"><div class="val" style="font-size:22px;">${s.val}</div><div class="lbl">${s.lbl}</div></div>`).join('');
 
   let posTxt;
   if (UAO_PCT <= 25) posTxt = 'en la banda económica, por debajo del piso competitivo';
@@ -990,7 +992,7 @@ function renderPrecios() {
   document.getElementById('precios-insight').innerHTML = `
     <div class="insight orange"><div class="ico">💡</div><div class="content">
       <h4>Posición estratégica del precio UAO</h4>
-      <p>El precio de UAO (${fmtPrice(REF_PRICE)}) se ubica en el percentil ${UAO_PCT} del pool de programas virtuales privados (mediana ${fmtPrice(P50)}), es decir, ${posTxt}. Esto sugiere ${UAO_PCT<=60 ? 'espacio para sostener o ajustar levemente el precio sin perder competitividad' : 'necesidad de reforzar la propuesta de valor para justificar el precio frente al mercado'}.</p></div></div>`;
+      <p>El precio de UAO (${fmtPrice(REF_PRICE)}) se ubica en el percentil ${UAO_PCT} del pool de programas virtuales e híbridos de todos los sectores (mediana ${fmtPrice(P50)}), es decir, ${posTxt}. Los umbrales clave son P25=${fmtPrice(P25)}, P40=${fmtPrice(P40)}, P60=${fmtPrice(P60)} y P75=${fmtPrice(P75)}, lo que permite dimensionar con claridad las franjas económicas, competitivas y premium del mercado.</p></div></div>`;
 
   // ch_09 — ranking de precios regionales
   const regionRankRows = NATIONAL_DATA
@@ -1048,12 +1050,12 @@ function renderPrecios() {
     document.getElementById('precios-regional-insight').innerHTML = `
       <div class="insight blue"><div class="ico">📍</div><div class="content">
         <h4>Posición del precio UAO frente al mercado regional</h4>
-        <p>Dentro del pool regional (${pricePoolRegional.length} programa(s) virtuales/híbridos privados), el precio de UAO (${fmtPrice(REF_PRICE)}) se ubica en el percentil ${UAO_PCT_REGIONAL}, es decir, ${posTxtReg} (mediana regional: ${fmtPrice(PR_MED)}).</p></div></div>`;
+        <p>Dentro del pool regional (${pricePoolRegional.length} programa(s) virtuales/híbridos de todos los sectores), el precio de UAO (${fmtPrice(REF_PRICE)}) se ubica en el percentil ${UAO_PCT_REGIONAL}, es decir, ${posTxtReg} (mediana regional: ${fmtPrice(PR_MED)}).</p></div></div>`;
   } else {
     document.getElementById('precios-regional-insight').innerHTML = `
       <div class="insight orange"><div class="ico">⚠️</div><div class="content">
         <h4>Muestra regional reducida</h4>
-        <p>El pool de programas virtuales/híbridos privados con precio válido en la región es de solo ${pricePoolRegional.length} registro(s), insuficiente para un benchmark estadístico robusto. Se recomienda usar el benchmark nacional como referencia principal de precio.</p></div></div>`;
+        <p>El pool de programas virtuales/híbridos de todos los sectores con precio válido en la región es de solo ${pricePoolRegional.length} registro(s), insuficiente para un benchmark estadístico robusto. Se recomienda usar el benchmark nacional como referencia principal de precio.</p></div></div>`;
   }
 }
 
@@ -1065,9 +1067,9 @@ function renderConclusiones() {
   const pctDig = Math.round(DIGITAL_PROGRAMS.length/TOTAL_PROGRAMS*100);
   const hallazgos = [
     {c:'blue', ico:'1️⃣', h:'Mercado nacional', p:`${TOTAL_PROGRAMS} programas afines a nivel nacional, con predominio presencial (${Math.round(PRESENCIAL_ONLY.length/TOTAL_PROGRAMS*100)}%) pero crecimiento sostenido del segmento digital (${pctDig}%).`},
-    {c:'green', ico:'2️⃣', h:'Mercado virtual', p:`${DIGITAL_PROGRAMS.length} competidores digitales directos a nivel nacional, mayoritariamente privados, con mediana de precio de ${fmtPrice(P50)}.`},
+    {c:'green', ico:'2️⃣', h:'Mercado virtual', p:`${DIGITAL_PROGRAMS.length} competidores digitales directos a nivel nacional, incluidos los sectores oficial y privado, con mediana de precio de ${fmtPrice(P50)}.`},
     {c:'orange', ico:'3️⃣', h:'Posicionamiento regional', p:`UAO cuenta con una ventaja de unicidad relevante: solo ${REGION_DIGITAL.length} programa(s) digitales operan hoy en ${REGION_NOMBRE}.`},
-    {c:'red', ico:'4️⃣', h:'Precio', p:`El precio propuesto se ubica en el percentil ${UAO_PCT} del mercado virtual privado, una posición ${UAO_PCT<=60?'competitiva':'que exige justificación de valor adicional'}.`},
+    {c:'red', ico:'4️⃣', h:'Precio', p:`El precio propuesto se ubica en el percentil ${UAO_PCT} del mercado virtual/híbrido, una posición ${UAO_PCT<=60?'competitiva':'que exige justificación de valor adicional'}.`},
     {c:'blue', ico:'5️⃣', h:'Demanda', p:`${trendUp} de los programas con datos comparables 2023–2024 muestran tendencia de crecimiento en matrícula, confirmando demanda activa en el sector.`},
     {c:'green', ico:'6️⃣', h:'Oportunidad curricular', p:`La combinación de gestión ambiental y turística en un solo programa no se identifica en ningún competidor directo, siendo un diferenciador potencial de UAO.`}
   ];
