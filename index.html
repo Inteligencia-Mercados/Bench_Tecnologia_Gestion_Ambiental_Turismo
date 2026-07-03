@@ -237,7 +237,9 @@ tbody tr.uao-row:hover { background:#fef9c3; }
   <div class="side-footer">
     Fuente: SNIES · MEN Colombia<br>
     n = <span id="foot-n">–</span> programas analizados<br>
-    Actualizado: julio 2026
+    Actualizado: julio 2026<br>
+    Elaborado por:</strong> Natalia Santamaría - Profesional en Inteligencia de Mercados.
+
   </div>
 </div>
 
@@ -648,7 +650,7 @@ function renderHero() {
 
   const insights = [
     {c:'blue', ico:'🗺️', h:'Saturación nacional vs. regional', p:`El mercado nacional agrupa ${TOTAL_PROGRAMS} programas afines, pero solo ${REGION_PROGRAMS.length} (${Math.round(REGION_PROGRAMS.length/TOTAL_PROGRAMS*100)}%) operan en la región ${REGION_NOMBRE}, evidenciando baja concentración competitiva local frente al centro del país.`},
-    {c:'orange', ico:'💰', h:'Posición de precio UAO', p:`El precio de UAO ($${(REF_PRICE/1000000).toFixed(2)}M) se ubica en el percentil ${UAO_PCT} del pool de programas virtuales privados, frente a una mediana de $${(P50/1000000).toFixed(2)}M.`},
+    {c:'orange', ico:'💰', h:'Posición de precio UAO', p:`El precio de UAO ($${(REF_PRICE/1000000).toFixed(2)}M) se ubica en el percentil ${UAO_PCT} de la oferta de programas virtuales privados, frente a una mediana de $${(P50/1000000).toFixed(2)}M.`},
     {c:'green', ico:'🎯', h:'Ventaja modal en la región', p:`Solo ${REGION_DIGITAL.length} programas virtuales/híbridos operan en ${REGION_NOMBRE}, y ${regionSinDigital.length} de los ${REGION_DEPTS.length} departamentos de la región no tienen oferta digital afín registrada.`},
     {c:'blue', ico:'📈', h:'Tendencia de demanda nacional', p:`Entre 2023 y 2024, ${trendUp} programas con datos comparables mostraron alza en matrícula y ${trendDown} mostraron baja, señal de un mercado con demanda activa pero desigual entre instituciones.`},
     {c:'orange', ico:'🌱', h:'Diferenciación curricular', p:`Ningún competidor identificado combina explícitamente gestión ambiental y turística en un solo programa: la mayoría ofrece una u otra orientación por separado, abriendo un espacio de diferenciación curricular para UAO.`}
