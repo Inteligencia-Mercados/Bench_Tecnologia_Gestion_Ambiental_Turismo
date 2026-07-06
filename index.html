@@ -109,15 +109,6 @@ ul { list-style:none; }
 .insight .content h4 { font-size:13px; font-weight:700; margin-bottom:3px; }
 .insight .content p { font-size:12px; line-height:1.5; color:var(--text-muted); }
 
-/* ===== Rec box ===== */
-.rec-box { background:linear-gradient(135deg,var(--primary),#1a1a2e); border-radius:12px; padding:24px 28px; color:#fff; margin-top:16px; }
-.rec-box h3 { font-size:22px; font-weight:800; text-transform:uppercase; margin-bottom:10px; }
-.rec-box ul { margin-top:8px; }
-.rec-box ul li { font-size:13px; padding:5px 0 5px 20px; position:relative; opacity:.95; }
-.rec-box ul li::before { content:"→"; color:#fb923c; position:absolute; left:0; font-weight:700; }
-.rec-box .decision { display:inline-block; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3);
-  padding:6px 16px; border-radius:20px; font-size:13px; font-weight:700; margin-bottom:14px; }
-
 /* ===== Badges ===== */
 .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; }
 .b-virt { background:#dbeafe; color:#1d4ed8; }
@@ -173,10 +164,6 @@ tbody tr.uao-row:hover { background:#fef9c3; }
 .ficha-table td { padding:10px 14px; font-size:13px; border-bottom:1px solid var(--border); }
 .ficha-table td:first-child { font-weight:700; color:var(--text-muted); width:35%; font-size:11.5px; text-transform:uppercase; }
 
-/* ===== Risk table ===== */
-.risk-table { width:100%; border-collapse:collapse; margin-top:14px; }
-.risk-table th { background:#f8fafc; text-transform:uppercase; font-size:11.5px; padding:10px 12px; text-align:left; border-bottom:2px solid var(--border); }
-.risk-table td { padding:11px 12px; border-bottom:1px solid var(--border); font-size:12.5px; vertical-align:top; }
 .risk-level { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
 .risk-alto  { background:#fee2e2; color:#991b1b; }
 .risk-medio { background:#fef3c7; color:#92400e; }
@@ -207,7 +194,6 @@ tbody tr.uao-row:hover { background:#fef9c3; }
   -webkit-print-color-adjust:exact !important;
   print-color-adjust:exact !important;
   .hero             { background-color:#6E1116 !important; }
-  .rec-box          { background-color:#1a1a2e !important; }
   .price-rec-header { background-color:#1a1a2e !important; }
   #main, .section, .chart-card { overflow:visible !important; }
   [id^="ch_"] { width:100% !important; min-width:0 !important; }
@@ -435,20 +421,10 @@ tbody tr.uao-row:hover { background:#fef9c3; }
 
   <!-- ================= SECCIÓN 7 · CONCLUSIONES ================= -->
   <section id="conclusiones" class="section">
-    <div class="section-title">Conclusiones y Recomendaciones Estratégicas</div>
-    <div class="section-sub">Síntesis del análisis competitivo y hoja de ruta sugerida para el lanzamiento.</div>
+    <div class="section-title">Conclusiones</div>
+    <div class="section-sub">Síntesis del análisis competitivo.</div>
 
     <div id="conclusiones-insights"></div>
-
-    <div class="rec-box" id="rec-box"></div>
-
-    <div class="chart-card" style="margin-top:20px;">
-      <h4>Matriz de Riesgos</h4>
-      <table class="risk-table">
-        <thead><tr><th>Riesgo</th><th>Nivel</th><th>Impacto</th><th>Mitigación</th></tr></thead>
-        <tbody id="risk-tbody"></tbody>
-      </table>
-    </div>
 
     <div class="roadmap-grid" id="roadmap-grid"></div>
   </section>
@@ -984,22 +960,21 @@ function renderPrecios() {
   document.getElementById('precios-stats').innerHTML = stats.map(s=>`
     <div class="kpi-card2 ${s.cls}"><div class="val" style="font-size:22px;">${s.val}</div><div class="lbl">${s.lbl}</div></div>`).join('');
 
-  let posTxt;
-  if (UAO_PCT <= 25) posTxt = 'en la banda económica, por debajo del piso competitivo';
-  else if (UAO_PCT <= 40) posTxt = 'en la banda bajo-competitiva';
-  else if (UAO_PCT <= 60) posTxt = 'en plena zona competitiva del mercado';
-  else if (UAO_PCT <= 75) posTxt = 'en la banda alta del mercado';
-  else posTxt = 'en la banda premium, por encima de la mayoría del mercado';
+  let posTxt, bandaLabel;
+  if (UAO_PCT <= 25) { posTxt = 'en la banda económica, por debajo del piso competitivo'; bandaLabel = 'económica (≤P25)'; }
+  else if (UAO_PCT <= 40) { posTxt = 'en la banda bajo-competitiva'; bandaLabel = 'bajo-competitiva (P25–P40)'; }
+  else if (UAO_PCT <= 60) { posTxt = 'en plena zona competitiva del mercado'; bandaLabel = 'competitiva (P40–P60)'; }
+  else if (UAO_PCT <= 75) { posTxt = 'en la banda alta del mercado'; bandaLabel = 'alta (P60–P75)'; }
+  else { posTxt = 'en la banda premium, por encima de la mayoría del mercado'; bandaLabel = 'premium (≥P75)'; }
 
-  const iqrNac = P75 - P25;
   const diffAvgNac = REF_PRICE - P_AVG;
   document.getElementById('precios-insight').innerHTML = `
     <div class="insight orange"><div class="ico">💡</div><div class="content">
       <h4>Posición estratégica del precio UAO</h4>
-      <p>El precio de UAO (${fmtPrice(REF_PRICE)}) se ubica en el percentil ${UAO_PCT} del pool de programas virtuales e híbridos de todos los sectores (mediana ${fmtPrice(P50)}), es decir, ${posTxt}. Los umbrales clave son P25=${fmtPrice(P25)}, P40=${fmtPrice(P40)}, P60=${fmtPrice(P60)} y P75=${fmtPrice(P75)}, lo que permite dimensionar con claridad las franjas económicas, competitivas y premium del mercado.</p></div></div>
+      <p>El precio de UAO (${fmtPrice(REF_PRICE)}) se ubica en la franja ${bandaLabel} del mercado nacional de programas virtuales e híbridos de todos los sectores. Los umbrales clave son P25=${fmtPrice(P25)}, P40=${fmtPrice(P40)}, P60=${fmtPrice(P60)} y P75=${fmtPrice(P75)}, lo que permite dimensionar con claridad las franjas económicas, competitivas y premium del mercado.</p></div></div>
     <div class="insight blue"><div class="ico">📊</div><div class="content">
       <h4>Dispersión del mercado nacional</h4>
-      <p>El pool nacional agrupa ${pricePool.length} programa(s) con precio promedio de ${fmtPrice(P_AVG)} y un rango entre ${fmtPrice(P_MIN)} y ${fmtPrice(P_MAX)}. El rango intercuartílico (P75–P25) es de ${fmtPrice(iqrNac)}, lo que refleja la amplitud de la franja competitiva del mercado. El precio de UAO se ubica ${diffAvgNac >= 0 ? fmtPrice(diffAvgNac)+' por encima' : fmtPrice(Math.abs(diffAvgNac))+' por debajo'} del precio promedio nacional.</p></div></div>`;
+      <p>Para posicionarse en la zona de mayor competitividad nacional, el precio debería ubicarse entre los percentiles P40 y P60. Sin embargo, es un programa híbrido y lo recomendado es sectorizar el análisis a nivel regional.</p></div></div>`;
 
   // ch_09 — ranking de precios regionales
   const regionRankRows = NATIONAL_DATA
@@ -1054,13 +1029,12 @@ function renderPrecios() {
     <div class="kpi-card2 ${s.cls}"><div class="val" style="font-size:22px;">${s.val}</div><div class="lbl">${s.lbl}</div></div>`).join('');
 
   if (pricePoolRegional.length >= 3) {
-    let posTxtReg;
-    if (UAO_PCT_REGIONAL <= 25) posTxtReg = 'en la banda económica regional, por debajo del piso competitivo';
-    else if (UAO_PCT_REGIONAL <= 40) posTxtReg = 'en la banda bajo-competitiva regional';
-    else if (UAO_PCT_REGIONAL <= 60) posTxtReg = 'en plena zona competitiva del mercado regional';
-    else if (UAO_PCT_REGIONAL <= 75) posTxtReg = 'en la banda alta del mercado regional';
-    else posTxtReg = 'en la banda premium regional, por encima de la mayoría del mercado';
-    const iqrReg = PR75 - PR25;
+    let posTxtReg, bandaRegLabel;
+    if (UAO_PCT_REGIONAL <= 25) { posTxtReg = 'en la banda económica regional, por debajo del piso competitivo'; bandaRegLabel = 'económica (≤P25)'; }
+    else if (UAO_PCT_REGIONAL <= 40) { posTxtReg = 'en la banda bajo-competitiva regional'; bandaRegLabel = 'bajo-competitiva (P25–P40)'; }
+    else if (UAO_PCT_REGIONAL <= 60) { posTxtReg = 'en plena zona competitiva del mercado regional'; bandaRegLabel = 'competitiva (P40–P60)'; }
+    else if (UAO_PCT_REGIONAL <= 75) { posTxtReg = 'en la banda alta del mercado regional'; bandaRegLabel = 'alta (P60–P75)'; }
+    else { posTxtReg = 'en la banda premium regional, por encima de la mayoría del mercado'; bandaRegLabel = 'premium (≥P75)'; }
     const diffAvgReg = REF_PRICE - PR_AVG;
     document.getElementById('precios-regional-insight').innerHTML = `
       <div class="insight blue"><div class="ico">📍</div><div class="content">
@@ -1068,7 +1042,7 @@ function renderPrecios() {
         <p>Dentro del pool regional (${pricePoolRegional.length} programa(s) virtuales/híbridos de todos los sectores que tienen información de precio), el precio de UAO (${fmtPrice(REF_PRICE)}) se ubica en el percentil ${UAO_PCT_REGIONAL}, es decir, ${posTxtReg}. Los umbrales clave son P25=${fmtPrice(PR25)}, P40=${fmtPrice(PR40)}, P60=${fmtPrice(PR60)} y P75=${fmtPrice(PR75)} (mediana regional: ${fmtPrice(PR_MED)}).</p></div></div>
       <div class="insight orange"><div class="ico">📊</div><div class="content">
         <h4>Dispersión del mercado regional</h4>
-        <p>El precio promedio regional es de ${fmtPrice(PR_AVG)}, con un rango entre ${fmtPrice(PR_MIN)} y ${fmtPrice(PR_MAX)}. El rango intercuartílico regional (P75–P25) es de ${fmtPrice(iqrReg)}. El precio de UAO se ubica ${diffAvgReg >= 0 ? fmtPrice(diffAvgReg)+' por encima' : fmtPrice(Math.abs(diffAvgReg))+' por debajo'} del promedio regional.</p></div></div>`;
+        <p>El precio de UAO se ubica en la franja ${bandaRegLabel} del mercado regional, ${diffAvgReg >= 0 ? fmtPrice(diffAvgReg)+' por encima' : fmtPrice(Math.abs(diffAvgReg))+' por debajo'} del precio promedio regional (${fmtPrice(PR_AVG)}). Los umbrales clave del mercado regional son P25=${fmtPrice(PR25)}, P40=${fmtPrice(PR40)}, P60=${fmtPrice(PR60)} y P75=${fmtPrice(PR75)}. Para posicionarse en la zona de mayor competitividad regional (entre los percentiles P40 y P60), el precio debería ubicarse entre ${fmtPrice(PR40)} y ${fmtPrice(PR60)}.</p></div></div>`;
   } else {
     document.getElementById('precios-regional-insight').innerHTML = `
       <div class="insight orange"><div class="ico">⚠️</div><div class="content">
@@ -1084,42 +1058,23 @@ function renderConclusiones() {
   const trendUp = NATIONAL_DATA.filter(d => d.dem2023!=null && d.dem2024!=null && d.dem2024 > d.dem2023).length;
   const pctDig = Math.round(DIGITAL_PROGRAMS.length/TOTAL_PROGRAMS*100);
   const hallazgos = [
+    // {c:'red', ico:'🎯', h:'Decisión recomendada', p:'LANZAR con ajuste de posicionamiento.'},
     {c:'blue', ico:'1️⃣', h:'Mercado nacional', p:`${TOTAL_PROGRAMS} programas afines a nivel nacional, con predominio presencial (${Math.round(PRESENCIAL_ONLY.length/TOTAL_PROGRAMS*100)}%) pero crecimiento sostenido del segmento digital (${pctDig}%).`},
     {c:'green', ico:'2️⃣', h:'Mercado virtual', p:`${DIGITAL_PROGRAMS.length} competidores digitales directos a nivel nacional, incluidos los sectores oficial y privado, con mediana de precio de ${fmtPrice(P50)}.`},
     {c:'orange', ico:'3️⃣', h:'Posicionamiento regional', p:`UAO cuenta con una ventaja de unicidad relevante: solo ${REGION_DIGITAL.length} programa(s) digitales operan hoy en ${REGION_NOMBRE}.`},
-    {c:'red', ico:'4️⃣', h:'Precio', p:`El precio propuesto se ubica en el percentil ${UAO_PCT} del mercado virtual/híbrido, una posición ${UAO_PCT<=60?'competitiva':'que exige justificación de valor adicional'}.`},
-    {c:'blue', ico:'5️⃣', h:'Demanda', p:`${trendUp} de los programas con datos comparables 2023–2024 muestran tendencia de crecimiento en matrícula, confirmando demanda activa en el sector.`},
-    {c:'green', ico:'6️⃣', h:'Oportunidad curricular', p:`La combinación de gestión ambiental y turística en un solo programa no se identifica en ningún competidor directo, siendo un diferenciador potencial de UAO.`}
+    {c:'red', ico:'4️⃣', h:'Precio', p:`El precio propuesto se ubica en el percentil ${UAO_PCT} del mercado virtual/híbrido, una posición ${UAO_PCT<=60?'competitiva':'que exige justificación de valor adicional'}. Así mismo, se recomienda ajustar el precio de referencia al rango P40–P60 del mercado regional (${fmtPrice(PR40)}–${fmtPrice(PR60)}), la zona de mayor competitividad identificada en el benchmark de precios regional. Por útlimo, se pueden evaluar incentivos de precio (becas o descuentos de lanzamiento) y alternativas híbridas puntuales para mitigar la sensibilidad de precio.`},
+    {c:'blue', ico:'5️⃣', h:'Demanda', p:`${trendUp} de los programas con datos comparables 2023–2024 muestran tendencia de crecimiento en matrícula, confirmando demanda activa en el sector (acorde a las universidades con los que cuentan con información de matrícula).`},
+    {c:'green', ico:'6️⃣', h:'Oportunidad curricular', p:`La combinación de gestión ambiental y turística en un solo programa no se identifica en ningún competidor directo, siendo un diferenciador potencial de UAO.`},
+    // {c:'blue', ico:'✅', h:'Precio competitivo', p:`Mantener el precio en la zona competitiva (percentil ${UAO_PCT}), reforzando la propuesta de valor con la doble orientación ambiental + turística.`},
+    // {c:'green', ico:'✅', h:'Precio regional recomendado', p:`Ajustar el precio de referencia al rango P40–P60 del mercado regional (${fmtPrice(PR40)}–${fmtPrice(PR60)}), la zona de mayor competitividad identificada en el benchmark de precios regional.`},
+    // {c:'orange', ico:'✅', h:'Posicionamiento regional', p:`Posicionar a UAO como referente virtual del Suroccidente + Eje Cafetero, dada la baja densidad de competidores digitales en la región.`},
+    // {c:'red', ico:'✅', h:'Diferenciación curricular', p:`Diseñar mensajes de mercadeo centrados en la integración curricular ambiental-turística como diferenciador único, reforzando el componente ambiental frente a la oferta tradicional de turismo u hotelería.`},
+    // {c:'blue', ico:'✅', h:'Monitoreo competitivo', p:`Monitorear la evolución de matrícula de los competidores virtuales líderes durante el primer año de oferta y consolidar el posicionamiento temprano ante la eventual entrada de nuevos competidores.`},
+    // {c:'green', ico:'✅', h:'Mitigación de sensibilidad de precio', p:`Evaluar incentivos de precio (becas o descuentos de lanzamiento) y alternativas híbridas puntuales para mitigar la sensibilidad de precio y la dependencia de un solo canal 100% virtual.`},
+    {c:'orange', ico:'✅', h:'Alianzas estratégicas', p:`Es importante explorar alianzas con actores del sector turístico y ambiental regional para prácticas y empleabilidad.`}
   ];
   document.getElementById('conclusiones-insights').innerHTML = hallazgos.map(h=>`
     <div class="insight ${h.c}"><div class="ico">${h.ico}</div><div class="content"><h4>${h.h}</h4><p>${h.p}</p></div></div>`).join('');
-
-  document.getElementById('rec-box').innerHTML = `
-    <div class="decision">Decisión recomendada: LANZAR con ajuste de posicionamiento</div>
-    <h3>Recomendaciones Estratégicas</h3>
-    <ul>
-      <li>Mantener el precio en la zona competitiva (percentil ${UAO_PCT}), reforzando la propuesta de valor con la doble orientación ambiental + turística.</li>
-      <li>Posicionar a UAO como referente virtual del Suroccidente + Eje Cafetero, dada la baja densidad de competidores digitales en la región.</li>
-      <li>Diseñar mensajes de mercadeo centrados en la integración curricular ambiental-turística como diferenciador único frente a programas de una sola orientación.</li>
-      <li>Monitorear la evolución de matrícula de los competidores virtuales líderes durante el primer año de oferta.</li>
-      <li>Explorar alianzas con actores del sector turístico y ambiental regional para prácticas y empleabilidad.</li>
-    </ul>`;
-
-  document.getElementById('risk-tbody').innerHTML = `
-    <tr><td>Baja diferenciación percibida frente a programas de turismo u hotelería tradicionales</td>
-      <td><span class="risk-level risk-medio">Medio</span></td><td>Menor atracción de matrícula inicial</td>
-      <td>Reforzar comunicación del componente ambiental como eje diferenciador</td></tr>
-    <tr><td>Entrada de nuevos competidores virtuales en la región</td>
-      <td><span class="risk-level risk-bajo">Bajo</span></td><td>Erosión gradual de la ventana de oportunidad</td>
-      <td>Consolidar posicionamiento temprano y fidelización de primeras cohortes</td></tr>
-    <tr><td>Sensibilidad de precio en segmento técnico/tecnológico</td>
-      <td><span class="risk-level risk-medio">Medio</span></td><td>Presión a la baja sobre matrícula</td>
-      <td>Evaluar becas o descuentos de lanzamiento en primeras cohortes</td></tr>
-    <tr><td>Dependencia de un solo canal (virtual) sin oferta híbrida complementaria</td>
-      <td><span class="risk-level risk-bajo">Bajo</span></td><td>Limita alcance a estudiantes que prefieren componente presencial</td>
-      <td>Evaluar prácticas o encuentros presenciales puntuales opcionales</td></tr>`;
-
-
 }
 
 /* ============================================================
