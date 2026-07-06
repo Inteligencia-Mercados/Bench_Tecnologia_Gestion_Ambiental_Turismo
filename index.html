@@ -382,7 +382,7 @@ tbody tr.uao-row:hover { background:#fef9c3; }
 
     <div class="table-card">
       <div class="table-toolbar">
-        <strong style="font-size:12.5px;">Demanda Histórica 2020–2024 — Programas Regionales y Digitales Nacionales</strong>
+        <strong style="font-size:12.5px;">DEMANDA HISTÓRICA 2020–2024 — Programas Regionales y Digitales Nacionales</strong>
         <input type="text" id="demand-search" placeholder="Buscar por programa, institución o ciudad…" oninput="renderDemandTable()">
         <select id="demand-ambito" onchange="renderDemandTable()">
           <option value="">Todos los ámbitos</option>
@@ -950,7 +950,7 @@ function renderPrecios() {
     <div class="price-rec-card"><div class="price-lbl">Precio Estratégico (P40–P60)</div>
       <div class="price">${fmtPrice(P40)} – ${fmtPrice(P60)}</div><div class="price-note">Zona de mayor competitividad</div></div>
     <div class="price-rec-card"><div class="price-lbl">Precio Premium (≥ P75)</div>
-      <div class="price">${fmtPrice(P75)}+</div><div class="price-note">Posicionamiento diferenciado</div></div>`;
+      <div class="price">${fmtPrice(P75)}</div><div class="price-note">Posicionamiento diferenciado</div></div>`;
 
   const econ = pricePool.filter(p=>p<=P25).length;
   const bajo = pricePool.filter(p=>p>P25 && p<=P40).length;
