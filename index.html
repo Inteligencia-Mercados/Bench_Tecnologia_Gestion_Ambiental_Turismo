@@ -597,6 +597,7 @@ const pricePoolRegional = NATIONAL_DATA
 const PR_MIN = pricePoolRegional.length ? pricePoolRegional[0] : 0;
 const PR_MAX = pricePoolRegional.length ? pricePoolRegional[pricePoolRegional.length-1] : 0;
 const PR_MED = percentile(pricePoolRegional, 50);
+const PR25 = percentile(pricePoolRegional, 25);
 const PR40 = percentile(pricePoolRegional, 40);
 const PR60 = percentile(pricePoolRegional, 60);
 const PR75 = percentile(pricePoolRegional, 75);
@@ -971,6 +972,7 @@ function renderPrecios() {
       </div></div>`).join('');
 
   const stats = [
+    {val:pricePool.length, lbl:'Programas en el pool nacional', cls:''},
     {val:fmtPrice(P_MIN), lbl:'Precio mínimo', cls:'green'},
     {val:fmtPrice(P25), lbl:'P25 (Límite económico)', cls:'blue'},
     {val:fmtPrice(P40), lbl:'P40', cls:'purple'},
@@ -989,10 +991,15 @@ function renderPrecios() {
   else if (UAO_PCT <= 75) posTxt = 'en la banda alta del mercado';
   else posTxt = 'en la banda premium, por encima de la mayoría del mercado';
 
+  const iqrNac = P75 - P25;
+  const diffAvgNac = REF_PRICE - P_AVG;
   document.getElementById('precios-insight').innerHTML = `
     <div class="insight orange"><div class="ico">💡</div><div class="content">
       <h4>Posición estratégica del precio UAO</h4>
-      <p>El precio de UAO (${fmtPrice(REF_PRICE)}) se ubica en el percentil ${UAO_PCT} del pool de programas virtuales e híbridos de todos los sectores (mediana ${fmtPrice(P50)}), es decir, ${posTxt}. Los umbrales clave son P25=${fmtPrice(P25)}, P40=${fmtPrice(P40)}, P60=${fmtPrice(P60)} y P75=${fmtPrice(P75)}, lo que permite dimensionar con claridad las franjas económicas, competitivas y premium del mercado.</p></div></div>`;
+      <p>El precio de UAO (${fmtPrice(REF_PRICE)}) se ubica en el percentil ${UAO_PCT} del pool de programas virtuales e híbridos de todos los sectores (mediana ${fmtPrice(P50)}), es decir, ${posTxt}. Los umbrales clave son P25=${fmtPrice(P25)}, P40=${fmtPrice(P40)}, P60=${fmtPrice(P60)} y P75=${fmtPrice(P75)}, lo que permite dimensionar con claridad las franjas económicas, competitivas y premium del mercado.</p></div></div>
+    <div class="insight blue"><div class="ico">📊</div><div class="content">
+      <h4>Dispersión del mercado nacional</h4>
+      <p>El pool nacional agrupa ${pricePool.length} programa(s) con precio promedio de ${fmtPrice(P_AVG)} y un rango entre ${fmtPrice(P_MIN)} y ${fmtPrice(P_MAX)}. El rango intercuartílico (P75–P25) es de ${fmtPrice(iqrNac)}, lo que refleja la amplitud de la franja competitiva del mercado. El precio de UAO se ubica ${diffAvgNac >= 0 ? fmtPrice(diffAvgNac)+' por encima' : fmtPrice(Math.abs(diffAvgNac))+' por debajo'} del precio promedio nacional.</p></div></div>`;
 
   // ch_09 — ranking de precios regionales
   const regionRankRows = NATIONAL_DATA
@@ -1006,11 +1013,11 @@ function renderPrecios() {
     .sort((a,b) => a.precio - b.precio);
   const rankData = regionRankRows.map(d => ({
     precio: d.precio,
-    univ: `${d.univ} — ${d.prog}`,
+    univ: `${d.univ} (${d.ciudad}) — ${d.prog}`,
     modal: d.modal,
     sector: d.sector
   }));
-  const combined = [...rankData, {precio:REF_PRICE, univ:UAO_REF.univ+' (Ref.)', uao:true}].sort((a,b)=>a.precio-b.precio);
+  const combined = [...rankData, {precio:REF_PRICE, univ:`${UAO_REF.univ} (${UAO_REF.ciudad}) (Ref.)`, uao:true}].sort((a,b)=>a.precio-b.precio);
   const colors9 = combined.map(d => {
     if (d.uao) return '#B56C5D';
     if (d.precio < PR40) return '#8FAEC7';
@@ -1036,21 +1043,32 @@ function renderPrecios() {
   const statsRegional = [
     {val: pricePoolRegional.length, lbl:'Programas en el pool regional', cls:''},
     {val: fmtPrice(PR_MIN), lbl:'Precio mínimo regional', cls:'green'},
-    {val: fmtPrice(PR_MED), lbl:'Mediana regional', cls:'blue'},
+    {val: fmtPrice(PR25), lbl:'P25 regional (Límite económico)', cls:'blue'},
+    {val: fmtPrice(PR40), lbl:'P40 regional', cls:'purple'},
+    {val: fmtPrice(PR_MED), lbl:'P50 regional (Mediana)', cls:'blue'},
+    {val: fmtPrice(PR60), lbl:'P60 regional', cls:'orange'},
+    {val: fmtPrice(PR75), lbl:'P75 regional', cls:'red'},
     {val: fmtPrice(PR_MAX), lbl:'Precio máximo regional', cls:'red'}
   ];
   document.getElementById('precios-regional-stats').innerHTML = statsRegional.map(s=>`
-    <div class="kpi-card2 ${s.cls}"><div class="val" style="font-size:26px;">${s.val}</div><div class="lbl">${s.lbl}</div></div>`).join('');
+    <div class="kpi-card2 ${s.cls}"><div class="val" style="font-size:22px;">${s.val}</div><div class="lbl">${s.lbl}</div></div>`).join('');
 
   if (pricePoolRegional.length >= 3) {
     let posTxtReg;
-    if (UAO_PCT_REGIONAL <= 40) posTxtReg = 'por debajo de la mediana regional';
-    else if (UAO_PCT_REGIONAL <= 60) posTxtReg = 'en línea con la mediana regional';
-    else posTxtReg = 'por encima de la mediana regional';
+    if (UAO_PCT_REGIONAL <= 25) posTxtReg = 'en la banda económica regional, por debajo del piso competitivo';
+    else if (UAO_PCT_REGIONAL <= 40) posTxtReg = 'en la banda bajo-competitiva regional';
+    else if (UAO_PCT_REGIONAL <= 60) posTxtReg = 'en plena zona competitiva del mercado regional';
+    else if (UAO_PCT_REGIONAL <= 75) posTxtReg = 'en la banda alta del mercado regional';
+    else posTxtReg = 'en la banda premium regional, por encima de la mayoría del mercado';
+    const iqrReg = PR75 - PR25;
+    const diffAvgReg = REF_PRICE - PR_AVG;
     document.getElementById('precios-regional-insight').innerHTML = `
       <div class="insight blue"><div class="ico">📍</div><div class="content">
         <h4>Posición del precio UAO frente al mercado regional</h4>
-        <p>Dentro del pool regional (${pricePoolRegional.length} programa(s) virtuales/híbridos de todos los sectores), el precio de UAO (${fmtPrice(REF_PRICE)}) se ubica en el percentil ${UAO_PCT_REGIONAL}, es decir, ${posTxtReg} (mediana regional: ${fmtPrice(PR_MED)}).</p></div></div>`;
+        <p>Dentro del pool regional (${pricePoolRegional.length} programa(s) virtuales/híbridos de todos los sectores que tienen información de precio), el precio de UAO (${fmtPrice(REF_PRICE)}) se ubica en el percentil ${UAO_PCT_REGIONAL}, es decir, ${posTxtReg}. Los umbrales clave son P25=${fmtPrice(PR25)}, P40=${fmtPrice(PR40)}, P60=${fmtPrice(PR60)} y P75=${fmtPrice(PR75)} (mediana regional: ${fmtPrice(PR_MED)}).</p></div></div>
+      <div class="insight orange"><div class="ico">📊</div><div class="content">
+        <h4>Dispersión del mercado regional</h4>
+        <p>El precio promedio regional es de ${fmtPrice(PR_AVG)}, con un rango entre ${fmtPrice(PR_MIN)} y ${fmtPrice(PR_MAX)}. El rango intercuartílico regional (P75–P25) es de ${fmtPrice(iqrReg)}. El precio de UAO se ubica ${diffAvgReg >= 0 ? fmtPrice(diffAvgReg)+' por encima' : fmtPrice(Math.abs(diffAvgReg))+' por debajo'} del promedio regional.</p></div></div>`;
   } else {
     document.getElementById('precios-regional-insight').innerHTML = `
       <div class="insight orange"><div class="ico">⚠️</div><div class="content">
